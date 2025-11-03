@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: fineract-backend
+    runtime: docker
+    rootDir: fineract
+    dockerfilePath: ./fineract/Dockerfile
+    envVars:
+      - key: JAVA_OPTS
+        value: "-Xmx1024m -Xms512m"
+      - key: SPRING_PROFILES_ACTIVE
+        value: "default"
+      - key: FINERACT_DEFAULT_TENANTDB_HOSTNAME
+        value: "localhost"
+      - key: FINERACT_DEFAULT_TENANTDB_PORT
+        value: "3306"
+      - key: FINERACT_DEFAULT_TENANTDB_USERNAME
+        value: "root"
+      - key: FINERACT_DEFAULT_TENANTDB_PASSWORD
+        value: "password"
+      - key: FINERACT_DEFAULT_TENANTDB_IDENTIFIER
+        value: "fineract_tenants"
+    healthCheckPath: /actuator/health
+    disk:
+      name: fineract-data
+      mountPath: /app/data
+      sizeGB: 10
+
+databases:
+  - name: fineract-db
+    databaseName: fineract_tenants
+    user: root
+    plan: starter
