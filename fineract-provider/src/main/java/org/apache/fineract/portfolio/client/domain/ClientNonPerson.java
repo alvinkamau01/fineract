@@ -47,15 +47,8 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
     @JoinColumn(name = "client_id", referencedColumnName = "id", nullable = false, unique = true)
     private Client client;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "constitution_cv_id", nullable = false)
-    private CodeValue constitution;
-
     @Column(name = "incorp_no", length = 50, nullable = true)
     private String incorpNumber;
-
-    @Column(name = "incorp_validity_till", nullable = true)
-    private LocalDate incorpValidityTill;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "main_business_line_cv_id", nullable = true)
@@ -64,23 +57,20 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
     @Column(name = "remarks", length = 150, nullable = true)
     private String remarks;
 
-    public static ClientNonPerson createNew(final Client client, final CodeValue constitution, final CodeValue mainBusinessLine,
-            String incorpNumber, LocalDate incorpValidityTill, String remarks) {
-        return new ClientNonPerson(client, constitution, mainBusinessLine, incorpNumber, incorpValidityTill, remarks);
+
+    public static ClientNonPerson createNew(final Client client, final CodeValue mainBusinessLine,
+            String incorpNumber, String remarks) {
+        return new ClientNonPerson(client, mainBusinessLine, incorpNumber, remarks);
     }
 
     protected ClientNonPerson() {
         //
     }
 
-    private ClientNonPerson(final Client client, final CodeValue constitution, final CodeValue mainBusinessLine, final String incorpNumber,
-            final LocalDate incorpValidityTill, final String remarks) {
+    private ClientNonPerson(final Client client, final CodeValue mainBusinessLine, final String incorpNumber,
+            final String remarks) {
         if (client != null) {
             this.client = client;
-        }
-
-        if (constitution != null) {
-            this.constitution = constitution;
         }
 
         if (mainBusinessLine != null) {
@@ -91,8 +81,6 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
             this.incorpNumber = incorpNumber.trim();
         }
 
-        this.incorpValidityTill = incorpValidityTill;
-
         if (StringUtils.isNotBlank(remarks)) {
             this.remarks = remarks.trim();
         }
@@ -102,12 +90,6 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
 
     private void validate(final Client client) {
         final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
-        validateIncorpValidityTillDate(client, dataValidationErrors);
-
-        if (this.constitution == null) {
-            dataValidationErrors.add(ApiParameterError.parameterError("error.msg.clients.constitutionid.is.null",
-                    "Constitution ID may not be null", ClientApiConstants.constitutionIdParamName));
-        }
 
         if (!dataValidationErrors.isEmpty()) {
             throw new PlatformApiDataValidationException(dataValidationErrors);
@@ -115,28 +97,6 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
 
     }
 
-    private void validateIncorpValidityTillDate(final Client client, final List<ApiParameterError> dataValidationErrors) {
-        if (getIncorpValidityTillLocalDate() != null && client.dateOfBirthLocalDate() != null
-                && DateUtils.isAfter(client.dateOfBirthLocalDate(), getIncorpValidityTillLocalDate())) {
-            final String defaultUserMessage = "incorpvaliditytill date cannot be after the incorporation date";
-            final ApiParameterError error = ApiParameterError.parameterError("error.msg.clients.incorpValidityTill.after.incorp.date",
-                    defaultUserMessage, ClientApiConstants.incorpValidityTillParamName, this.incorpValidityTill);
-
-            dataValidationErrors.add(error);
-        }
-    }
-
-    public LocalDate getIncorpValidityTillLocalDate() {
-        return this.incorpValidityTill;
-    }
-
-    public Long constitutionId() {
-        Long constitutionId = null;
-        if (this.constitution != null) {
-            constitutionId = this.constitution.getId();
-        }
-        return constitutionId;
-    }
 
     public Long mainBusinessLineId() {
         Long mainBusinessLineId = null;
@@ -144,10 +104,6 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
             mainBusinessLineId = this.mainBusinessLine.getId();
         }
         return mainBusinessLineId;
-    }
-
-    public void updateConstitution(CodeValue constitution) {
-        this.constitution = constitution;
     }
 
     public void updateMainBusinessLine(CodeValue mainBusinessLine) {
@@ -170,22 +126,6 @@ public class ClientNonPerson extends AbstractPersistableCustom<Long> {
             this.remarks = StringUtils.defaultIfEmpty(newValue, null);
         }
 
-        final String dateFormatAsInput = command.dateFormat();
-        final String localeAsInput = command.locale();
-
-        if (command.isChangeInLocalDateParameterNamed(ClientApiConstants.incorpValidityTillParamName, getIncorpValidityTillLocalDate())) {
-            final String valueAsInput = command.stringValueOfParameterNamed(ClientApiConstants.incorpValidityTillParamName);
-            actualChanges.put(ClientApiConstants.incorpValidityTillParamName, valueAsInput);
-            actualChanges.put(ClientApiConstants.dateFormatParamName, dateFormatAsInput);
-            actualChanges.put(ClientApiConstants.localeParamName, localeAsInput);
-
-            this.incorpValidityTill = command.localDateValueOfParameterNamed(ClientApiConstants.incorpValidityTillParamName);
-        }
-
-        if (command.isChangeInLongParameterNamed(ClientApiConstants.constitutionIdParamName, constitutionId())) {
-            final Long newValue = command.longValueOfParameterNamed(ClientApiConstants.constitutionIdParamName);
-            actualChanges.put(ClientApiConstants.constitutionIdParamName, newValue);
-        }
 
         if (command.isChangeInLongParameterNamed(ClientApiConstants.mainBusinessLineIdParamName, mainBusinessLineId())) {
             final Long newValue = command.longValueOfParameterNamed(ClientApiConstants.mainBusinessLineIdParamName);

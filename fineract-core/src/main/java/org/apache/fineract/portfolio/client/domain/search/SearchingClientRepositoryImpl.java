@@ -85,9 +85,58 @@ public class SearchingClientRepositoryImpl implements SearchingClientRepository 
         List<Order> orders = criteriaQueryFactory.ordersFromPageable(pageable, cb, root, () -> cb.desc(root.get("id")));
         query.orderBy(orders);
 
+        // Create a left join for staff to handle null staff relationships
+        Join<Client, ?> staffJoin = root.join("staff", JoinType.LEFT);
+
         query.select(cb.construct(SearchedClient.class, root.get("id"), root.get("displayName"), root.get("externalId"),
                 root.get("accountNumber"), office.get("id"), office.get("name"), root.get("mobileNo"), root.get("status"),
-                root.get("activationDate"), root.get("createdDate")));
+                root.get("activationDate"), root.get("createdDate"), staffJoin.get("id")));
+
+        TypedQuery<SearchedClient> queryToExecute = entityManager.createQuery(query);
+
+        return criteriaQueryFactory.readPage(queryToExecute, Client.class, pageable, spec);
+    }
+
+    @Override
+    public Page<SearchedClient> searchByTextAndStaffId(String searchText, Long staffId, Pageable pageable, String officeHierarchy) {
+        String hierarchyLikeValue = officeHierarchy + "%";
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SearchedClient> query = cb.createQuery(SearchedClient.class);
+
+        Root<Client> root = query.from(Client.class);
+        Path<Office> office = root.get("office");
+
+        Specification<Client> spec = (r, q, builder) -> {
+            Path<Office> o = r.get("office");
+            Join<Client, ClientIdentifier> identity = r.join("identifiers", JoinType.LEFT);
+
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.like(o.get("hierarchy"), hierarchyLikeValue));
+
+            // Add staff ID filter for loan officers
+            if (staffId != null) {
+                predicates.add(cb.and(cb.isNotNull(r.get("staff")), cb.equal(r.get("staff").get("id"), staffId)));
+            }
+
+            String searchLikeValue = "%" + searchText + "%";
+            predicates.add(cb.or(cb.like(r.get("accountNumber"), searchLikeValue), cb.like(r.get("displayName"), searchLikeValue),
+                    cb.like(r.get("externalId"), searchLikeValue), cb.like(r.get("mobileNo"), searchLikeValue),
+                    cb.like(identity.get("documentKey"), searchLikeValue)));
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        criteriaQueryFactory.applySpecificationToCriteria(root, spec, query);
+
+        List<Order> orders = criteriaQueryFactory.ordersFromPageable(pageable, cb, root, () -> cb.desc(root.get("id")));
+        query.orderBy(orders);
+
+        // Create a left join for staff to handle null staff relationships
+        Join<Client, ?> staffJoin = root.join("staff", JoinType.LEFT);
+
+        query.select(cb.construct(SearchedClient.class, root.get("id"), root.get("displayName"), root.get("externalId"),
+                root.get("accountNumber"), office.get("id"), office.get("name"), root.get("mobileNo"), root.get("status"),
+                root.get("activationDate"), root.get("createdDate"), staffJoin.get("id")));
 
         TypedQuery<SearchedClient> queryToExecute = entityManager.createQuery(query);
 

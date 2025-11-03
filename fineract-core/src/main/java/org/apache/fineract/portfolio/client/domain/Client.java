@@ -208,6 +208,7 @@ public class Client extends AbstractAuditableWithUTCDateTimeCustom<Long> {
     @Column(name = "proposed_transfer_date")
     private LocalDate proposedTransferDate;
 
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "client", orphanRemoval = true, fetch = FetchType.LAZY)
     protected Set<ClientIdentifier> identifiers = new HashSet<>();
 

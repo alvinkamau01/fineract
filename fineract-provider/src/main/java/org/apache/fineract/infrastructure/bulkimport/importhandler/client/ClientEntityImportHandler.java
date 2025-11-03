@@ -137,8 +137,7 @@ public class ClientEntityImportHandler implements ImportHandler {
         }
         String remarks = ImportHandlerUtils.readAsString(ClientEntityConstants.REMARKS_COL, row);
 
-        ClientNonPersonData clientNonPersonData = ClientNonPersonData.importInstance(incorporationNo, incorporationTill, remarks,
-                mainBusinessId, constitutionId, locale, dateFormat);
+        ClientNonPersonData clientNonPersonData = ClientNonPersonData.importInstance(incorporationNo, remarks, mainBusinessId, locale, dateFormat);
 
         ExternalId externalId = externalIdFactory.create(ImportHandlerUtils.readAsString(ClientEntityConstants.EXTERNAL_ID_COL, row));
 

@@ -256,18 +256,6 @@ public final class ClientDataValidator {
                     .notExceedingLengthOf(150);
         }
 
-        if (this.fromApiJsonHelper.parameterExists(ClientApiConstants.incorpValidityTillParamName, element)) {
-            final LocalDate incorpValidityTill = this.fromApiJsonHelper
-                    .extractLocalDateNamed(ClientApiConstants.incorpValidityTillParamName, element);
-            baseDataValidator.reset().parameter(ClientApiConstants.incorpValidityTillParamName).value(incorpValidityTill).ignoreIfNull();
-        }
-
-        if (this.fromApiJsonHelper.parameterExists(ClientApiConstants.constitutionIdParamName, element)) {
-            final Integer constitution = this.fromApiJsonHelper.extractIntegerSansLocaleNamed(ClientApiConstants.constitutionIdParamName,
-                    element);
-            baseDataValidator.reset().parameter(ClientApiConstants.constitutionIdParamName).value(constitution).integerGreaterThanZero()
-                    .notBlank();
-        }
 
         if (this.fromApiJsonHelper.parameterExists(ClientApiConstants.mainBusinessLineIdParamName, element)) {
             final Integer mainBusinessLine = this.fromApiJsonHelper
@@ -275,6 +263,8 @@ public final class ClientDataValidator {
             baseDataValidator.reset().parameter(ClientApiConstants.mainBusinessLineIdParamName).value(mainBusinessLine)
                     .integerGreaterThanZero();
         }
+
+
 
         return dataValidationErrors;
     }
@@ -513,6 +503,7 @@ public final class ClientDataValidator {
             baseDataValidator.reset().parameter("isStaff").value(isStaffFlag).notNull();
         }
 
+
         Map<String, Object> parameterUpdateStatusDetails = getParameterUpdateStatusAndDataValidationErrorsForUpdateOnClientNonPerson(
                 element.getAsJsonObject().get(ClientApiConstants.clientNonPersonDetailsParamName));
         boolean atLeastOneParameterPassedForClientNonPersonUpdate = (boolean) parameterUpdateStatusDetails.get("parameterUpdateStatus");
@@ -550,20 +541,6 @@ public final class ClientDataValidator {
             baseDataValidator.reset().parameter(ClientApiConstants.remarksParamName).value(remarks).notExceedingLengthOf(150);
         }
 
-        if (this.fromApiJsonHelper.parameterExists(ClientApiConstants.incorpValidityTillParamName, element)) {
-            atLeastOneParameterPassedForUpdate = true;
-            final LocalDate incorpValidityTill = this.fromApiJsonHelper
-                    .extractLocalDateNamed(ClientApiConstants.incorpValidityTillParamName, element);
-            baseDataValidator.reset().parameter(ClientApiConstants.incorpValidityTillParamName).value(incorpValidityTill);
-        }
-
-        if (this.fromApiJsonHelper.parameterExists(ClientApiConstants.constitutionIdParamName, element)) {
-            atLeastOneParameterPassedForUpdate = true;
-            final Integer constitutionId = this.fromApiJsonHelper.extractIntegerSansLocaleNamed(ClientApiConstants.constitutionIdParamName,
-                    element);
-            baseDataValidator.reset().parameter(ClientApiConstants.constitutionIdParamName).value(constitutionId).integerGreaterThanZero()
-                    .notBlank();
-        }
 
         if (this.fromApiJsonHelper.parameterExists(ClientApiConstants.mainBusinessLineIdParamName, element)) {
             atLeastOneParameterPassedForUpdate = true;
@@ -572,6 +549,7 @@ public final class ClientDataValidator {
             baseDataValidator.reset().parameter(ClientApiConstants.mainBusinessLineIdParamName).value(mainBusinessLineId)
                     .integerGreaterThanZero();
         }
+
 
         Map<String, Object> parameterUpdateStatusDetails = new HashMap<>();
         parameterUpdateStatusDetails.put("parameterUpdateStatus", atLeastOneParameterPassedForUpdate);

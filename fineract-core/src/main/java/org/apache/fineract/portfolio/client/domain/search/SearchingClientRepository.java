@@ -24,4 +24,6 @@ import org.springframework.data.domain.Pageable;
 public interface SearchingClientRepository {
 
     Page<SearchedClient> searchByText(String searchText, Pageable pageable, String officeHierarchy);
+
+    Page<SearchedClient> searchByTextAndStaffId(String searchText, Long staffId, Pageable pageable, String officeHierarchy);
 }

@@ -31,6 +31,7 @@ import org.mapstruct.Named;
 public interface ClientSearchDataMapper {
 
     @Mapping(target = "status", source = "source", qualifiedByName = "toStatus")
+    @Mapping(target = "staffId", source = "staffId")
     ClientSearchData map(SearchedClient source);
 
     @Named("toStatus")

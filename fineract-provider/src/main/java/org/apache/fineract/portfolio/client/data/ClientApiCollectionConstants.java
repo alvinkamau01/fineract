@@ -34,7 +34,7 @@ public class ClientApiCollectionConstants extends ClientApiConstants {
 
     protected static final Set<String> CLIENT_NON_PERSON_CREATE_REQUEST_DATA_PARAMETERS = new HashSet<>(
             Arrays.asList(familyMembers, address, localeParamName, dateFormatParamName, incorpNumberParamName, remarksParamName,
-                    incorpValidityTillParamName, constitutionIdParamName, mainBusinessLineIdParamName, datatables));
+                    mainBusinessLineIdParamName, datatables));
 
     protected static final Set<String> CLIENT_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<>(Arrays.asList(localeParamName,
             dateFormatParamName, accountNoParamName, externalIdParamName, mobileNoParamName, emailAddressParamName, firstnameParamName,
@@ -45,8 +45,8 @@ public class ClientApiCollectionConstants extends ClientApiConstants {
             clientNonPersonDetailsParamName, displaynameParamName, legalFormIdParamName, isStaffParamName));
 
     protected static final Set<String> CLIENT_NON_PERSON_UPDATE_REQUEST_DATA_PARAMETERS = new HashSet<>(
-            Arrays.asList(localeParamName, dateFormatParamName, incorpNumberParamName, remarksParamName, incorpValidityTillParamName,
-                    constitutionIdParamName, mainBusinessLineIdParamName));
+            Arrays.asList(localeParamName, dateFormatParamName, incorpNumberParamName, remarksParamName,
+                    mainBusinessLineIdParamName));
 
     /**
      * These parameters will match the class level parameters of {@link ClientData}. Where possible, we try to get

@@ -16,8 +16,6 @@
 # under the License.
 #
 
-version: "3.8"
-
 services:
 
   db:
@@ -38,3 +36,10 @@ services:
       - ./config/docker/env/fineract.env
       - ./config/docker/env/fineract-common.env
       - ./config/docker/env/fineract-mariadb.env
+
+  mailhog:
+    image: mailhog/mailhog
+    container_name: mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"

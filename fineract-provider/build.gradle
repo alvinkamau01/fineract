@@ -213,7 +213,7 @@ tasks.register('setBlankPassword') {
     doLast {
         def sql = Sql.newInstance('jdbc:mariadb://localhost:3306/', mysqlUser, mysqlPassword, 'org.mariadb.jdbc.Driver')
         sql.execute('USE `fineract_tenants`')
-        sql.execute('UPDATE fineract_tenants.tenants SET schema_server = \'localhost\', schema_server_port = \'3306\', schema_username = \'mifos\', schema_password = \'mysql\' WHERE id=1;')
+        sql.execute('UPDATE fineract_tenants.tenants SET schema_server = \'fineract-mysql-776345797159.us-central1.run.app\', schema_server_port = \'443\', schema_username = \'root\', schema_password = \'mysql\', schema_connection_parameters = \'?useSSL=true\' WHERE id=1;')
     }
 }
 

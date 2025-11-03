@@ -60,8 +60,22 @@ public class ClientSearchService {
         String requestSearchText = request.map(ClientTextSearch::getText).orElse(null);
         String searchText = StringUtils.defaultString(requestSearchText, "");
 
+        // Check if staff filtering is requested
+        Optional<Long> staffIdFilter = request.map(ClientTextSearch::getStaffId);
+        Optional<Boolean> includeStaffId = request.map(ClientTextSearch::getIncludeStaffId);
+
         Pageable pageable = searchRequest.toPageable();
 
-        return clientRepository.searchByText(searchText, pageable, hierarchy).map(clientSearchDataMapper::map);
+        Page<ClientSearchData> result;
+        if (staffIdFilter.isPresent() && includeStaffId.orElse(false)) {
+            // Filter by staff ID for loan officers
+            result = clientRepository.searchByTextAndStaffId(searchText, staffIdFilter.get(), pageable, hierarchy)
+                    .map(clientSearchDataMapper::map);
+        } else {
+            // Regular search without staff filtering
+            result = clientRepository.searchByText(searchText, pageable, hierarchy).map(clientSearchDataMapper::map);
+        }
+
+        return result;
     }
 }

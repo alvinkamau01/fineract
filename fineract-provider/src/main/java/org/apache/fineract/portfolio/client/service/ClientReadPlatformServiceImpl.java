@@ -200,6 +200,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             extraCriteria += " and c.legal_form_enum = ? ";
         }
 
+        if (searchParameters.hasStaffId()) {
+            paramList.add(searchParameters.getStaffId());
+            extraCriteria += " and c.staff_id = ? ";
+        }
+
         if (StringUtils.isNotBlank(extraCriteria)) {
             extraCriteria = extraCriteria.substring(4);
         }
@@ -332,13 +337,15 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             sqlBuilder.append("acu.firstname as activatedByFirstname, ");
             sqlBuilder.append("acu.lastname as activatedByLastname, ");
 
-            sqlBuilder.append("cnp.constitution_cv_id as constitutionId, ");
-            sqlBuilder.append("cvConstitution.code_value as constitutionValue, ");
             sqlBuilder.append("cnp.incorp_no as incorpNo, ");
-            sqlBuilder.append("cnp.incorp_validity_till as incorpValidityTill, ");
             sqlBuilder.append("cnp.main_business_line_cv_id as mainBusinessLineId, ");
             sqlBuilder.append("cvMainBusinessLine.code_value as mainBusinessLineValue, ");
-            sqlBuilder.append("cnp.remarks as remarks ");
+            sqlBuilder.append("cnp.remarks as remarks, ");
+            sqlBuilder.append("cnp.daily_sales as dailySales, ");
+            sqlBuilder.append("cnp.operating_capital as operatingCapital, ");
+            sqlBuilder.append("cnp.gross_income as grossIncome, ");
+            sqlBuilder.append("cnp.expenses as expenses, ");
+            sqlBuilder.append("cnp.net_income as netIncome ");
 
             sqlBuilder.append("from m_client c ");
             sqlBuilder.append("join m_office o on o.id = c.office_id ");
@@ -355,7 +362,6 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             sqlBuilder.append("left join m_code_value cvclienttype on cvclienttype.id = c.client_type_cv_id ");
             sqlBuilder.append("left join m_code_value cvclassification on cvclassification.id = c.client_classification_cv_id ");
             sqlBuilder.append("left join m_code_value cvSubStatus on cvSubStatus.id = c.sub_status ");
-            sqlBuilder.append("left join m_code_value cvConstitution on cvConstitution.id = cnp.constitution_cv_id ");
             sqlBuilder.append("left join m_code_value cvMainBusinessLine on cvMainBusinessLine.id = cnp.main_business_line_cv_id ");
 
             this.schema = sqlBuilder.toString();
@@ -418,6 +424,10 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
             final Long savingsAccountId = JdbcSupport.getLong(rs, "savingsAccountId");
 
+            final String market = rs.getString("market");
+            final Boolean rentalOrOwned = rs.getBoolean("rentalOrOwned");
+            final Integer peopleHoused = JdbcSupport.getInteger(rs, "peopleHoused");
+
             final LocalDate closedOnDate = JdbcSupport.getLocalDate(rs, "closedOnDate");
             final String closedByUsername = rs.getString("closedByUsername");
             final String closedByFirstname = rs.getString("closedByFirstname");
@@ -438,18 +448,19 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
                 legalForm = ClientEnumerations.legalForm(legalFormEnum);
             }
 
-            final Long constitutionId = JdbcSupport.getLong(rs, "constitutionId");
-            final String constitutionValue = rs.getString("constitutionValue");
-            final CodeValueData constitution = CodeValueData.instance(constitutionId, constitutionValue);
             final String incorpNo = rs.getString("incorpNo");
-            final LocalDate incorpValidityTill = JdbcSupport.getLocalDate(rs, "incorpValidityTill");
             final Long mainBusinessLineId = JdbcSupport.getLong(rs, "mainBusinessLineId");
             final String mainBusinessLineValue = rs.getString("mainBusinessLineValue");
             final CodeValueData mainBusinessLine = CodeValueData.instance(mainBusinessLineId, mainBusinessLineValue);
             final String remarks = rs.getString("remarks");
+            final Integer dailySales = JdbcSupport.getInteger(rs, "dailySales");
+            final Integer operatingCapital = JdbcSupport.getInteger(rs, "operatingCapital");
+            final Integer grossIncome = JdbcSupport.getInteger(rs, "grossIncome");
+            final Integer expenses = JdbcSupport.getInteger(rs, "expenses");
+            final Integer netIncome = JdbcSupport.getInteger(rs, "netIncome");
 
-            final ClientNonPersonData clientNonPerson = new ClientNonPersonData(constitution, incorpNo, incorpValidityTill,
-                    mainBusinessLine, remarks);
+            final ClientNonPersonData clientNonPerson = new ClientNonPersonData(incorpNo, mainBusinessLine, remarks, dailySales,
+                    operatingCapital, grossIncome, expenses, netIncome);
 
             final ClientTimelineData timeline = new ClientTimelineData(submittedOnDate, submittedByUsername, submittedByFirstname,
                     submittedByLastname, activationDate, activatedByUsername, activatedByFirstname, activatedByLastname, closedOnDate,
@@ -642,18 +653,23 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("acu.firstname as activatedByFirstname, ");
             builder.append("acu.lastname as activatedByLastname, ");
 
-            builder.append("cnp.constitution_cv_id as constitutionId, ");
-            builder.append("cvConstitution.code_value as constitutionValue, ");
             builder.append("cnp.incorp_no as incorpNo, ");
-            builder.append("cnp.incorp_validity_till as incorpValidityTill, ");
             builder.append("cnp.main_business_line_cv_id as mainBusinessLineId, ");
             builder.append("cvMainBusinessLine.code_value as mainBusinessLineValue, ");
             builder.append("cnp.remarks as remarks, ");
+            builder.append("cnp.daily_sales as dailySales, ");
+            builder.append("cnp.operating_capital as operatingCapital, ");
+            builder.append("cnp.gross_income as grossIncome, ");
+            builder.append("cnp.expenses as expenses, ");
+            builder.append("cnp.net_income as netIncome, ");
 
             builder.append("c.activation_date as activationDate, c.image_id as imageId, ");
             builder.append("c.staff_id as staffId, s.display_name as staffName, ");
             builder.append("c.default_savings_product as savingsProductId, sp.name as savingsProductName, ");
-            builder.append("c.default_savings_account as savingsAccountId ");
+            builder.append("c.default_savings_account as savingsAccountId, ");
+            builder.append("c.market as market, ");
+            builder.append("c.rental_or_owned as rentalOrOwned, ");
+            builder.append("c.people_housed as peopleHoused ");
             builder.append("from m_client c ");
             builder.append("join m_office o on o.id = c.office_id ");
             builder.append("left join m_client_non_person cnp on cnp.client_id = c.id ");
@@ -667,7 +683,6 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
             builder.append("left join m_code_value cvclienttype on cvclienttype.id = c.client_type_cv_id ");
             builder.append("left join m_code_value cvclassification on cvclassification.id = c.client_classification_cv_id ");
             builder.append("left join m_code_value cvSubStatus on cvSubStatus.id = c.sub_status ");
-            builder.append("left join m_code_value cvConstitution on cvConstitution.id = cnp.constitution_cv_id ");
             builder.append("left join m_code_value cvMainBusinessLine on cvMainBusinessLine.id = cnp.main_business_line_cv_id ");
 
             this.schema = builder.toString();
@@ -749,22 +764,27 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
                 legalForm = ClientEnumerations.legalForm(legalFormEnum);
             }
 
-            final Long constitutionId = JdbcSupport.getLong(rs, "constitutionId");
-            final String constitutionValue = rs.getString("constitutionValue");
-            final CodeValueData constitution = CodeValueData.instance(constitutionId, constitutionValue);
             final String incorpNo = rs.getString("incorpNo");
-            final LocalDate incorpValidityTill = JdbcSupport.getLocalDate(rs, "incorpValidityTill");
             final Long mainBusinessLineId = JdbcSupport.getLong(rs, "mainBusinessLineId");
             final String mainBusinessLineValue = rs.getString("mainBusinessLineValue");
             final CodeValueData mainBusinessLine = CodeValueData.instance(mainBusinessLineId, mainBusinessLineValue);
             final String remarks = rs.getString("remarks");
+            final Integer dailySales = JdbcSupport.getInteger(rs, "dailySales");
+            final Integer operatingCapital = JdbcSupport.getInteger(rs, "operatingCapital");
+            final Integer grossIncome = JdbcSupport.getInteger(rs, "grossIncome");
+            final Integer expenses = JdbcSupport.getInteger(rs, "expenses");
+            final Integer netIncome = JdbcSupport.getInteger(rs, "netIncome");
 
-            final ClientNonPersonData clientNonPerson = new ClientNonPersonData(constitution, incorpNo, incorpValidityTill,
-                    mainBusinessLine, remarks);
+            final ClientNonPersonData clientNonPerson = new ClientNonPersonData(incorpNo, mainBusinessLine, remarks, dailySales,
+                    operatingCapital, grossIncome, expenses, netIncome);
 
             final ClientTimelineData timeline = new ClientTimelineData(submittedOnDate, submittedByUsername, submittedByFirstname,
                     submittedByLastname, activationDate, activatedByUsername, activatedByFirstname, activatedByLastname, closedOnDate,
                     closedByUsername, closedByFirstname, closedByLastname);
+
+            final String market = rs.getString("market");
+            final Boolean rentalOrOwned = rs.getBoolean("rentalOrOwned");
+            final Integer peopleHoused = JdbcSupport.getInteger(rs, "peopleHoused");
 
             return ClientData.instance(accountNo, status, subStatus, officeId, officeName, transferToOfficeId, transferToOfficeName, id,
                     firstname, middlename, lastname, fullname, displayName, externalId, mobileNo, emailAddress, dateOfBirth, gender,

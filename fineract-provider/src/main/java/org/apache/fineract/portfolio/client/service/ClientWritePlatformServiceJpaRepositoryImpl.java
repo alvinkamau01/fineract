@@ -258,6 +258,11 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final boolean isStaff = command.booleanPrimitiveValueOfParameterNamed(ClientApiConstants.isStaffParamName);
             final LocalDate dataOfBirth = command.localDateValueOfParameterNamed(ClientApiConstants.dateOfBirthParamName);
 
+            final String market = command.stringValueOfParameterNamed(ClientApiConstants.marketParamName);
+            final Boolean rental = command.booleanObjectValueOfParameterNamed(ClientApiConstants.rentalParamName);
+            final Boolean owned = command.booleanObjectValueOfParameterNamed(ClientApiConstants.ownedParamName);
+            final Integer peopleHoused = command.integerValueOfParameterNamed(ClientApiConstants.peopleHousedParamName);
+
             ClientStatus status = ClientStatus.PENDING;
             boolean active = false;
             if (command.hasParameter("active")) {
@@ -372,16 +377,6 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
             final String incorpNumber = this.fromApiJsonHelper.extractStringNamed(ClientApiConstants.incorpNumberParamName,
                     clientNonPersonElement);
             final String remarks = this.fromApiJsonHelper.extractStringNamed(ClientApiConstants.remarksParamName, clientNonPersonElement);
-            final LocalDate incorpValidityTill = this.fromApiJsonHelper
-                    .extractLocalDateNamed(ClientApiConstants.incorpValidityTillParamName, clientNonPersonElement);
-
-            CodeValue clientNonPersonConstitution = null;
-            final Long clientNonPersonConstitutionId = this.fromApiJsonHelper.extractLongNamed(ClientApiConstants.constitutionIdParamName,
-                    clientNonPersonElement);
-            if (clientNonPersonConstitutionId != null) {
-                clientNonPersonConstitution = this.codeValueRepository.findOneByCodeNameAndIdWithNotFoundDetection(
-                        ClientApiConstants.CLIENT_NON_PERSON_CONSTITUTION, clientNonPersonConstitutionId);
-            }
 
             CodeValue clientNonPersonMainBusinessLine = null;
             final Long clientNonPersonMainBusinessLineId = this.fromApiJsonHelper
@@ -391,8 +386,8 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
                         ClientApiConstants.CLIENT_NON_PERSON_MAIN_BUSINESS_LINE, clientNonPersonMainBusinessLineId);
             }
 
-            final ClientNonPerson newClientNonPerson = ClientNonPerson.createNew(client, clientNonPersonConstitution,
-                    clientNonPersonMainBusinessLine, incorpNumber, incorpValidityTill, remarks);
+            final ClientNonPerson newClientNonPerson = ClientNonPerson.createNew(client, clientNonPersonMainBusinessLine,
+                    incorpNumber, remarks);
 
             this.clientNonPersonRepository.save(newClientNonPerson);
         }
@@ -464,6 +459,7 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
                 changes.put(ClientApiConstants.lastnameParamName, newValue);
                 clientForUpdate.setLastname(StringUtils.defaultIfEmpty(newValue, null));
             }
+
 
             if (command.isChangeInStringParameterNamed(ClientApiConstants.fullnameParamName, clientForUpdate.getFullname())) {
                 final String newValue = command.stringValueOfParameterNamed(ClientApiConstants.fullnameParamName);
@@ -644,17 +640,6 @@ public class ClientWritePlatformServiceJpaRepositoryImpl implements ClientWriteP
                 final Map<String, Object> clientNonPersonChanges = clientNonPersonForUpdate
                         .update(JsonCommand.fromExistingCommand(command, clientNonPersonElement));
 
-                if (clientNonPersonChanges.containsKey(ClientApiConstants.constitutionIdParamName)) {
-
-                    final Long newValue = this.fromApiJsonHelper.extractLongNamed(ClientApiConstants.constitutionIdParamName,
-                            clientNonPersonElement);
-                    CodeValue constitution = null;
-                    if (newValue != null) {
-                        constitution = this.codeValueRepository
-                                .findOneByCodeNameAndIdWithNotFoundDetection(ClientApiConstants.CLIENT_NON_PERSON_CONSTITUTION, newValue);
-                    }
-                    clientNonPersonForUpdate.updateConstitution(constitution);
-                }
 
                 if (clientNonPersonChanges.containsKey(ClientApiConstants.mainBusinessLineIdParamName)) {
 

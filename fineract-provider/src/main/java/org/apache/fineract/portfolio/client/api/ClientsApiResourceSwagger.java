@@ -331,6 +331,22 @@ final class ClientsApiResourceSwagger {
         public List<ClientAddressRequest> address;
         @Schema(example = "test@test.com")
         public String emailAddress;
+        @Schema(example = "Market Name")
+        public String market;
+        @Schema(example = "true")
+        public Boolean rental;
+        @Schema(example = "false")
+        public Boolean owned;
+        @Schema(example = "5")
+        public Integer peopleHoused;
+        @Schema(example = "1000")
+        public Integer dailySales;
+        @Schema(example = "50000")
+        public Integer operatingCapital;
+        @Schema(example = "2000")
+        public Integer grossIncome;
+        @Schema(example = "1500")
+        public Integer expenses;
     }
 
     @Schema(description = "PostClientsResponse")
@@ -359,6 +375,14 @@ final class ClientsApiResourceSwagger {
         public String externalId;
         @Schema(example = "123-456")
         public String resourceExternalId;
+        @Schema(example = "Market Name")
+        public String market;
+        @Schema(example = "true")
+        public Boolean rental;
+        @Schema(example = "false")
+        public Boolean owned;
+        @Schema(example = "5")
+        public Integer peopleHoused;
     }
 
     @Schema(description = "PutClientsClientIdResponse")
