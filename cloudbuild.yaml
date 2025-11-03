@@ -1,0 +1,24 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gradle'
+    args: ['build', '-x', 'test']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/microf-management-system/fineract-cloudrun', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/microf-management-system/fineract-cloudrun']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'fineract-cloud-run'
+      - '--image'
+      - 'gcr.io/microf-management-system/fineract-cloudrun'
+      - '--platform'
+      - 'managed'
+      - '--port'
+      - '8080'
+      - '--allow-unauthenticated'
+      - '--region'
+      - 'us-central1'
+      - '--project'
+      - 'microf-management-system'
