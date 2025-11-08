@@ -7,11 +7,8 @@ RUN apk add --no-cache curl
 # Set working directory
 WORKDIR /app
 
-# Copy the built JAR file from the Gradle build (module build output)
-# Use the module build/libs path so the Dockerfile doesn't depend on a
-# pre-copied file at the repository root. The cloudbuild step runs Gradle
-# before this step so the artifact should be present at this path.
-COPY fineract-provider/build/libs/*.jar app.jar
+# Copy the built JAR file
+COPY fineract-provider-1.13.1-SNAPSHOT.jar app.jar
 
 # Expose port 10000 (Render default)
 EXPOSE 10000

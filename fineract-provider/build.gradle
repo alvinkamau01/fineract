@@ -241,6 +241,11 @@ bootJar {
     dependsOn resolve
 }
 
+tasks.register('copyJar', Copy) {
+    from bootJar
+    into rootProject.projectDir
+}
+
 jib {
     from {
         image = 'azul/zulu-openjdk-alpine:21'
