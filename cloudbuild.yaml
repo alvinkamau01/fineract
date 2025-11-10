@@ -1,6 +1,6 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gradle'
-    args: ['build', '-x', 'test']
+  - name: 'gradle:8.10.2-jdk21'
+    args: ['gradle', 'assemble', '-x', 'spotless*', '--no-daemon']
   - name: 'gcr.io/cloud-builders/gradle'
     args: ['-p', 'fineract-provider', 'copyJar']
   - name: 'gcr.io/cloud-builders/docker'
@@ -18,7 +18,7 @@ steps:
       - '--platform'
       - 'managed'
       - '--port'
-      - '8080'
+      - '10000'
       - '--allow-unauthenticated'
       - '--region'
       - 'us-central1'
