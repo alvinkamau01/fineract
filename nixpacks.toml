@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["...", "gradle", "openjdk21"]
+nixPkgs = ["gradle", "openjdk21"]
 
 [variables]
 JAVA_HOME = "/nix/store/884fbn646q1crxlqf805m7qzj8fgbd76-openjdk-21+35"
