@@ -8,7 +8,9 @@ JAVA_HOME = "/nix/store/884fbn646q1crxlqf805m7qzj8fgbd76-openjdk-21+35"
 cmds = [
   "export JAVA_HOME=/nix/store/884fbn646q1crxlqf805m7qzj8fgbd76-openjdk-21+35",
   "export PATH=$JAVA_HOME/bin:$PATH",
-  "gradle clean build -x test --no-daemon"
+  "java -version",
+  "gradle --version",
+  "gradle clean build -x test --no-daemon --no-build-cache"
 ]
 
 [start]
