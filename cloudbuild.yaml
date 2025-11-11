@@ -24,3 +24,5 @@ steps:
       - 'us-central1'
       - '--project'
       - 'microf-management-system'
+      - '--set-env-vars'
+      - 'FINERACT_HIKARI_JDBC_URL=jdbc:mariadb://fineract-mysql-776345797159.us-central1.run.app:443/fineract_tenants?useSSL=true,FINERACT_HIKARI_USERNAME=root,FINERACT_HIKARI_PASSWORD=mysql'
