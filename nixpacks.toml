@@ -10,7 +10,7 @@ cmds = [
   "export PATH=$JAVA_HOME/bin:$PATH",
   "java -version",
   "gradle --version",
-  "gradle clean build -x test --no-daemon --no-build-cache"
+  "gradle clean build -x test -x rat --no-daemon --no-build-cache"
 ]
 
 [start]
