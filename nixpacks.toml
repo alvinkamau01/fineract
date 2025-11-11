@@ -3,11 +3,13 @@ nixPkgs = ["gradle", "openjdk21"]
 
 [variables]
 JAVA_HOME = "/nix/store/884fbn646q1crxlqf805m7qzj8fgbd76-openjdk-21+35"
+NIXPACKS_JAVA_VERSION = "21"
 
 [phases.build]
 cmds = [
   "export JAVA_HOME=/nix/store/884fbn646q1crxlqf805m7qzj8fgbd76-openjdk-21+35",
   "export PATH=$JAVA_HOME/bin:$PATH",
+  "export NIXPACKS_JAVA_VERSION=21",
   "java -version",
   "gradle --version",
   "gradle clean build -x test --no-daemon --no-build-cache"
